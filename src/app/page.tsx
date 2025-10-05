@@ -1,12 +1,8 @@
 export default function Page() {
   return (
-    <main style={{ maxWidth: 720, margin: "4rem auto", fontFamily: "system-ui, sans-serif" }}>
-      <h1>Play @ garrett.org</h1>
-      <p>Choose a game:</p>
-      <ul>
-        <li><a href="/the-hiding-game">The Hiding Game</a></li>
-        <li><a href="/match-ten">Match Ten</a></li>
-      </ul>
+    <main style={{ maxWidth: 720, margin: '2rem auto 4rem', fontFamily: 'system-ui, sans-serif', lineHeight: 1.5, color: '#222' }}>
+      <h1 style={{ marginTop: 0, color: '#222' }}>Welcome to the Garrett playground.</h1>
+      <p style={{ fontSize: '1.1rem', marginTop: '1rem', color: '#222' }}>Enjoy!</p>
     </main>
   );
 }

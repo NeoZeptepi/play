@@ -192,7 +192,6 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 	updateDebug('loop cnt',0);
 	updateDebug('m_fail',0);
 	
-	// establish final hand position; half or none
 	if (m_hand=='half') {
 		m_hand_top 	= o_hand.top_half;
 		m_hand_left	= o_hand.left_half; 
@@ -201,18 +200,10 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 		m_hand_left	= o_hand.left_hidden;
 	}
 
-	// move hand in
 	$('#d_hand').animate({top: 0,left: 0},600,function() {
-		
 		$('#d_showing').fadeIn(50)
-
-		// clear stones
-		$('.stones').hide();
-		
-		// display stones
+		$('.stones').hide().removeClass('stone-hidden');
 		while (m_current <= m_stoneCount) {
-			
-			// set offset and window based on how many stones are showing
 			if (m_current <= m_showing) {
 				m_top_offset	= o_showing_box.top;
 				m_top_window	= o_showing_box.height - o_stone.height;
@@ -224,8 +215,6 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 				m_left_offset	= o_hidden_box.left;
 				m_left_window	= o_hidden_box.width - o_stone.width;
 			}
-
-			// compute random stone location, prevent overlapping stones
 			m_works = false;
 			while (!m_works) {
 				m_count	= 0
@@ -237,7 +226,6 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 									m_top-o_stone.height>a_top[m_count]);
 					m_left_fail	= !(m_left+o_stone.width<a_left[m_count] || 
 									m_left-o_stone.width>a_left[m_count]);
-					
 					if (m_top_fail && m_left_fail) {
 						m_fail++;
 						updateDebug('m_fail',m_fail);
@@ -250,14 +238,15 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 			}
 			a_top[m_current]	= m_top;
 			a_left[m_current]	= m_left;
-
 			m_currentStone = $('#stone'+m_current.toString());
 			m_currentStone.css({top: m_top, left: m_left});
-			m_currentStone.show();
-
+			if (m_current <= m_showing) {
+				m_currentStone.show();
+			} else {
+				m_currentStone.addClass('stone-hidden').hide();
+			}
 			m_current++;
 		}
-
 	}).animate({top: -10,left: -10},100)
 	.animate({top: 0,left: -20},100)
 	.animate({top: 0,left: 0},100)
@@ -266,6 +255,11 @@ function placeStones(m_stoneCount,m_showing,m_hand) {
 	function() {$('#d_showing').fadeOut(500)})
 	.animate({top: m_hand_top,left: m_hand_left},600);
 };
+
+// Helper to reveal all previously hidden stones (invoke if logic later requires)
+function revealHiddenStones() {
+	$('.stone-hidden').show().removeClass('stone-hidden');
+}
 
 // numberpad functions
 function numberPad(m_function, m_showNum) {
