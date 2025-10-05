@@ -31,16 +31,19 @@ export default function HidingGame() {
         className={`container ${styles.container}`}
         style={{
           width: '100%',
-          maxWidth: '800px',
+          display: 'flex',
+          justifyContent: 'center',
           overflow: 'hidden',
-          margin: '0 auto',
         }}
       >
-        <iframe
-          title="The Hiding Game"
-          src="/the-hiding-game/game.html"
-          style={{width: '100%', height: iframeHeight || '500px', border: '0', display: 'block'}}
-        />
+        {/* Use the game's native box size so legacy absolute positioning works as intended */}
+        <div style={{ width: 800, height: 600, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+          <iframe
+            title="The Hiding Game"
+            src="/the-hiding-game/game.html"
+            style={{ width: 800, height: 600, border: '0', display: 'block' }}
+          />
+        </div>
       </div>
 
       <div id="d_results">
