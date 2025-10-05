@@ -29,7 +29,7 @@ export default function RootLayout({
         <header style={{ width: '100%', background: '#222', color: '#fff', padding: '1rem 2rem', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '0.05em', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           Play games on Garrett.org
         </header>
-        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+  <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
           {/* Sidebar */}
           <nav style={{ width: 220, background: '#f5f5f5', borderRight: '1px solid #e0e0e0', padding: '2rem 1rem 1rem 1rem', boxSizing: 'border-box', minHeight: '0' }}>
             <div style={{ fontWeight: 600, marginBottom: '1.5rem', fontSize: '1.1rem', color: '#333' }}>Games</div>
@@ -39,12 +39,12 @@ export default function RootLayout({
             </ul>
           </nav>
           {/* Main content */}
-          <main style={{ flex: 1, padding: '2rem', minHeight: 0, background: '#fff', overflow: 'auto' }}>
+          <main style={{ flex: 1, padding: '2rem', minHeight: 0, background: '#fff', overflow: 'auto', paddingBottom: '4rem' }}>
             {children}
           </main>
         </div>
-        {/* Footer */}
-        <footer style={{ width: '100%', background: '#222', color: '#fff', padding: '0.75rem 2rem', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.03em', marginTop: 'auto' }}>
+        {/* Footer (fixed) */}
+        <footer style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', background: '#222', color: '#fff', padding: '0.75rem 2rem', textAlign: 'center', fontSize: '1rem', letterSpacing: '0.03em', zIndex: 50 }}>
           &copy; {new Date().getFullYear()} Garrett.org &mdash; Play for fun!
         </footer>
       </body>

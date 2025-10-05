@@ -1,72 +1,46 @@
+"use client";
 import Script from "next/script";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from './page.module.css';
 
 export default function HidingGame() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [iframeHeight, setIframeHeight] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    function updateHeight() {
+      const header = document.querySelector('header');
+      const footer = document.querySelector('footer');
+      const headerH = header ? (header as HTMLElement).offsetHeight : 0;
+      const footerH = footer ? (footer as HTMLElement).offsetHeight : 0;
+      const available = window.innerHeight - headerH - footerH - 32; // account for main padding
+      if (available > 100) setIframeHeight(`${available}px`);
+    }
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
   return (
     <>
-      {/* Load required CSS */}
-      <link rel="stylesheet" href="/the-hiding-game/css/general.css" />
-      <link rel="stylesheet" href="/the-hiding-game/css/dev1.css" />
-      <link rel="stylesheet" href="/the-hiding-game/css/debug.css" />
-      <link rel="stylesheet" href="/the-hiding-game/js/jquery/ui/css/ui-lightness/jquery-ui-1.8.16.custom.css" />
+      {/* The iframe hosts the legacy game; do not load its CSS/JS in the parent to avoid style/behavior bleed */}
 
-      {/* Load required JS (jQuery, jQuery UI, game logic) */}
-      <Script src="/the-hiding-game/js/jquery/jquery-1.6.3.js" strategy="beforeInteractive" />
-      <Script src="/the-hiding-game/js/jquery/ui/js/jquery-ui-1.8.16.custom.min.js" strategy="beforeInteractive" />
-      <Script src="/the-hiding-game/js/dev1.js" strategy="afterInteractive" />
-
-      {/* Main game container */}
-      <div className={`container ${styles.container}`}>
-        <div className="temp_small_type" id="d_header">
-          <div id="d_logo">
-            <div id="logoFX01" className="logoFXdiv">
-              <img src="/the-hiding-game/images/interface/logoFX/whiteSwipe.png" className="logoFXimg" alt="whiteSwipe" />
-            </div>
-            <div id="logoFX02" className="logoFXdiv">
-              <img src="/the-hiding-game/images/interface/logoFX/redDot.png" className="logoFXimg" alt="redDot" />
-            </div>
-            <div id="logoFX03" className="logoFXdiv">
-              <img id="logoFX03img" src="/the-hiding-game/images/interface/logoFX/star.png" className="logoFXimg" alt="star" />
-            </div>
-            <div id="d_logo_mask"></div>
-          </div>
-        </div>
-        <div id="d_main">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} id={`stone${i+1}`} className="stones" style={{display: 'none'}}></div>
-          ))}
-          <div id="d_hidden" style={{background: '#FFF', position: 'absolute', display: 'block'}}></div>
-          <div id="d_showing" style={{background: '#FFF', position: 'absolute', display: 'block'}}></div>
-          <div id="d_hand"></div>
-        </div>
-        <div className="temp_small_type" id="d_footer">
-          <div id="d_number_yes">
-            <img id="d_num_fx_star1" src="/the-hiding-game/images/interface/logoFX/star.png" width={10} height={10} alt="star" />
-            <img id="d_num_fx_star2" src="/the-hiding-game/images/interface/logoFX/star.png" width={10} height={10} alt="star" />
-            <img id="d_num_fx_star3" src="/the-hiding-game/images/interface/logoFX/star.png" width={10} height={10} alt="star" />
-          </div>
-          <div id="d_number_no">&nbsp;</div>
-          <div id="d_numbers">
-            {[...Array(11)].map((_, i) => (
-              <img key={i} src={`/the-hiding-game/images/numbers/${i}.png`} className="number" alt={`number${i}`} />
-            ))}
-          </div>
-          <div id="d_heartBeat">&copy;</div>
-        </div>
-        <div id="d_leftbar"></div>
-        <div id="d_pad">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="pad_number"><img src={`/the-hiding-game/images/numbers/${i+1}.png`} className="number" alt={`pad${i+1}`} /></div>
-          ))}
-          <div id="d_pad_text">Select a Starting Number</div>
-        </div>
-        <div id="d_pad_number_selected"><img src="/the-hiding-game/images/numbers/1.png" alt="selected" /></div>
-        {/*
-        <div id="d_intro_dialog">
-          <img src="/the-hiding-game/images/dialogs/screen_example.png" alt="The Hiding Game Example" name="d_intro_image" width={400} height={285} id="d_intro_image" />
-        </div>
-        */}
+      {/* Main game container — load original game in an iframe so it can rely on its original layout */}
+      <div
+        id="legacy-game"
+        ref={containerRef}
+        className={`container ${styles.container}`}
+        style={{
+          width: '100%',
+          maxWidth: '800px',
+          overflow: 'hidden',
+          margin: '0 auto',
+        }}
+      >
+        <iframe
+          title="The Hiding Game"
+          src="/the-hiding-game/game.html"
+          style={{width: '100%', height: iframeHeight || '500px', border: '0', display: 'block'}}
+        />
       </div>
 
       <div id="d_results">
