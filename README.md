@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Play: Math & Logic Mini‑Games
+==============================
 
-## Getting Started
+Purpose: A static-exported Next.js playground containing legacy and newly built educational math games.
 
-First, run the development server:
+Key Games
+---------
+* The Hiding Game (legacy iframe, preserved)
+* Match Ten (pair numbers to sum 10)
+* Match Ten Dice (2–4 dice, select dice that sum to 10)
+* Double Addend (find the addend that doubles to target)
 
+Quick Start
+-----------
 ```bash
+git clone https://github.com/NeoZeptepi/play.git
+cd play
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Open http://localhost:3000
+
+Static Export & Deploy (Cloudflare Pages)
+----------------------------------------
+```bash
+npm run export:static   # static build (produces out/ because output: export)
+npm run deploy:cf       # deploy the out/ directory with Wrangler
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Navigation lives in `src/app/layout.tsx`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Docs
+----
+See `docs/MIGRATION.md` (full environment replication) and `docs/ONBOARDING.md` (teacher quick guide).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Branch / PR Flow
+----------------
+1. git checkout -b feature-name
+2. Make changes
+3. git add . && git commit -m "feat: thing"
+4. git push origin feature-name
+5. Open Pull Request → review → merge (Cloudflare auto-deploys)
 
-## Learn More
+Tech Stack
+----------
+* Next.js (App Router, static export) `next.config.ts` sets `output: "export"` and `trailingSlash: true`.
+* React 19
+* No server runtime — all static + client interactivity.
+* Deployed via Cloudflare Pages (Wrangler manual deploy optional).
 
-To learn more about Next.js, take a look at the following resources:
+Scripts
+-------
+See `package.json` for all scripts. Added convenience commands for export & deploy.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+License
+-------
+Private educational use.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

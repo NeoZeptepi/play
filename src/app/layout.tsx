@@ -37,6 +37,7 @@ export default function RootLayout({
               <li style={{ marginBottom: '1rem' }}><a href="/the-hiding-game" style={{ color: '#222', textDecoration: 'none', fontWeight: 500 }}>The Hiding Game</a></li>
               <li style={{ marginBottom: '1rem' }}><a href="/match-ten" style={{ color: '#222', textDecoration: 'none', fontWeight: 500 }}>Match Ten</a></li>
               <li style={{ marginBottom: '1rem' }}><a href="/match-ten-dice" style={{ color: '#222', textDecoration: 'none', fontWeight: 500 }}>Match Ten Dice</a></li>
+              <li style={{ marginBottom: '1rem' }}><a href="/double-addend" style={{ color: '#222', textDecoration: 'none', fontWeight: 500 }}>Double Addend</a></li>
             </ul>
           </nav>
           <main style={{ flex: 1, padding: '2rem', minHeight: 0, background: '#fff', overflow: 'auto', paddingBottom: '4rem', color: '#222' }}>

@@ -29,21 +29,22 @@ function makeBoard(): DieCell[] {
   return values.map((v, idx) => ({ id: idx, value: v, matched: false }));
 }
 
-// Pre-generate simple pip SVGs for values 1..6 (returns a React node)
+// Stable 2D SVG dice (replacing experimental 3D)
 function DiceSVG({ value }: { value: number }) {
-  const pip = (cx: number, cy: number, key: string) => <circle key={key} cx={cx} cy={cy} r={4} fill="#222" />;
-  const pips: Record<number, Array<[number, number]>> = {
+  const pipSets: Record<number, Array<[number, number]>> = {
     1: [[24,24]],
-    2: [[10,10],[38,38]],
-    3: [[10,10],[24,24],[38,38]],
-    4: [[10,10],[10,38],[38,10],[38,38]],
-    5: [[10,10],[10,38],[24,24],[38,10],[38,38]],
-    6: [[10,10],[10,24],[10,38],[38,10],[38,24],[38,38]]
+    2: [[12,12],[36,36]],
+    3: [[12,12],[24,24],[36,36]],
+    4: [[12,12],[12,36],[36,12],[36,36]],
+    5: [[12,12],[12,36],[24,24],[36,12],[36,36]],
+    6: [[12,12],[12,24],[12,36],[36,12],[36,24],[36,36]],
   };
   return (
-    <svg viewBox="0 0 48 48" width={48} height={48} style={{ display: 'block' }}>
-      <rect x={2} y={2} width={44} height={44} rx={8} ry={8} fill="#fff" stroke="#333" strokeWidth={3} />
-      {pips[value].map((p, i) => pip(p[0], p[1], `${value}-${i}`))}
+    <svg viewBox="0 0 48 48" width={48} height={48} aria-hidden style={{ display:'block' }}>
+      <rect x={1.5} y={1.5} width={45} height={45} rx={10} ry={10} fill="#fff" stroke="#222" strokeWidth={2.5} />
+      {pipSets[value].map((p,i) => (
+        <circle key={i} cx={p[0]} cy={p[1]} r={4.2} fill="#111" />
+      ))}
     </svg>
   );
 }
@@ -197,6 +198,9 @@ export default function MatchTenDice() {
           const isMatched = cell.matched;
           const entering = !entered;
           const classes = [entering ? 'die-enter' : '', isMatched ? 'die-out' : '', isSelected ? 'die-selected' : '', (!isMatched && rolling) ? 'die-reroll' : ''].filter(Boolean).join(' ');
+          const row = Math.floor(idx / 6);
+          const col = idx % 6;
+          const delayMs = row * 140 + col * 55; // wave timing
           return (
             <button
               key={cell.id}
@@ -208,15 +212,18 @@ export default function MatchTenDice() {
                 height: 72,
                 borderRadius: 10,
                 border: isSelected ? '2px solid #0070f3' : '1px solid #ccc',
-                background: isMatched ? 'transparent' : isSelected ? '#eef6ff' : '#ffffff',
-                boxShadow: isMatched ? 'none' : '0 1px 3px rgba(0,0,0,0.08)',
+                background: isMatched ? 'transparent' : '#fff',
+                boxShadow: isMatched ? 'none' : '0 1px 3px rgba(0,0,0,0.18)',
                 cursor: isMatched || rolling ? 'default' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
                 transition: 'border 160ms ease, background 160ms ease',
+                padding: 0,
+                ['--enter-delay' as any]: `${delayMs}ms`
               }}
+              aria-label={`Die showing ${cell.value}${isMatched ? ' (matched)' : ''}`}
             >
               {!isMatched && <DiceSVG value={cell.value} />}
             </button>
@@ -250,13 +257,14 @@ export default function MatchTenDice() {
         </div>
       )}
       <style>{`
-        .die-enter { animation: dieIn 600ms cubic-bezier(.45,.85,.3,1) forwards; }
-        .die-selected { transform: translateY(-4px) scale(1.05); }
-        .die-out { animation: dieOut 640ms ease forwards; }
-        .die-reroll { animation: dieReroll 650ms ease-in-out; }
-        @keyframes dieIn { 0% { transform: translateY(-30px) scale(.3) rotate(-360deg); opacity:0; } 55% { transform: translateY(6px) scale(1.05) rotate(25deg); opacity:1; } 75% { transform: translateY(-4px) scale(.98) rotate(-8deg); } 100% { transform: translateY(0) scale(1) rotate(0deg); opacity:1; } }
-        @keyframes dieOut { 0% { transform: scale(1) rotate(0deg); opacity:1; } 35% { transform: scale(1.18) rotate(260deg); opacity:1; } 100% { transform: scale(0) rotate(720deg); opacity:0; } }
-        @keyframes dieReroll { 0% { transform: scale(1) rotate(0deg); filter:brightness(1); } 25% { transform: scale(.6) rotate(270deg); filter:brightness(1.2); } 55% { transform: scale(1.15) rotate(540deg); } 80% { transform: scale(.92) rotate(630deg); } 100% { transform: scale(1) rotate(720deg); filter:brightness(1); } }
+  .die-enter { animation: rollIn 640ms cubic-bezier(.5,.9,.25,1.15) forwards; animation-delay: var(--enter-delay,0ms); opacity:0; }
+  .die-selected { outline: 2px solid #0070f3; outline-offset: 2px; }
+  .die-out { animation: rollOut 520ms cubic-bezier(.55,.1,.9,.55) forwards; }
+  .die-reroll { animation: rollReroll 520ms cubic-bezier(.55,.1,.9,.55); }
+  @keyframes rollIn { 0% { transform: translateY(-28px) rotate(-270deg) scale(.35); opacity:0;} 55% { transform: translateY(6px) rotate(380deg) scale(1.05); opacity:1;} 75% { transform: translateY(-4px) rotate(350deg) scale(.97);} 100% { transform: translateY(0) rotate(360deg) scale(1); opacity:1;} }
+  @keyframes rollOut { 0% { transform: rotate(0deg) scale(1); opacity:1;} 35% { transform: rotate(250deg) scale(1.15); opacity:1;} 100% { transform: rotate(540deg) scale(.2); opacity:0;} }
+  @keyframes rollReroll { 0% { transform: rotate(0deg) scale(1);} 40% { transform: rotate(420deg) scale(.7);} 70% { transform: rotate(600deg) scale(1.08);} 100% { transform: rotate(720deg) scale(1);} }
+  @media (prefers-reduced-motion: reduce) { .die-enter, .die-reroll, .die-out { animation:none !important; opacity:1 !important; transform:none !important; } }
       `}</style>
     </main>
   );
