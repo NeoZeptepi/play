@@ -8,6 +8,15 @@
 <link href="/the-hiding-game/css/dev1.css" rel="stylesheet" type="text/css" />
 <link href="/the-hiding-game/css/debug.css" rel="stylesheet" type="text/css" />
 <link href="/the-hiding-game/css/compat.css" rel="stylesheet" type="text/css" />
+<!-- Critical inline compatibility styles to prevent layout flash and ensure legacy assets render correctly -->
+<style>
+  /* hide legacy overlay elements immediately (important) */
+  #d_hidden, #d_showing { display: none !important; }
+  /* ensure the hand sits above background but below UI chrome */
+  #d_hand { position: absolute; z-index: 1000; }
+  /* keep number images at intrinsic size */
+  .number, .pad_number img, .number img { max-width: none !important; width: auto !important; height: auto !important; display: block !important; }
+</style>
 <style>html,body,.container{height:100%;margin:0;padding:0;overflow:hidden;} .container{box-sizing:content-box;}</style>
 <script src="/the-hiding-game/js/jquery/jquery-1.6.3.js"></script>
 <script src="/the-hiding-game/js/jquery/ui/js/jquery-ui-1.8.16.custom.min.js"></script>
