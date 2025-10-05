@@ -1,0 +1,41 @@
+/* Copied from thehidinggame.com/css/dev1.css */
+#d_header {
+	height: 100px;
+	width: 800px;
+	clear: both;
+	position: relative;
+	background-image: url(../images/interface/header_background.png);
+}
+#d_logo {
+	background-color: #92BE89;
+	position: absolute;
+	height: 80px;
+	width: 420px;
+	top: 9px;
+	clip: rect(auto,auto,auto,auto);
+}
+#d_logo_mask {
+	background-image: url(../images/interface/logo.png);
+	height: 80px;
+	width: 420px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+#d_leftbar {
+	height: 500px;
+	width: 20px;
+	position: absolute;
+	left: -20px;
+	top: 0px;
+	background-image: url(../images/interface/left_shading.png);
+}
+#d_rightbar {
+	float: left;
+	height: 300px;
+	width: 150px;
+	clear: right;
+	background-color: #CCC;
+	position: relative;
+	/* ...rest of file omitted for brevity... */
+}

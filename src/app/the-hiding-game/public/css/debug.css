@@ -1,0 +1,39 @@
+/* Copied from thehidinggame.com/css/debug.css */
+#d_debug {
+	position: fixed;
+	width: 200px;
+	bottom: 5px;
+	right: 5px;
+	font-family: "Lucida Console", Monaco, monospace;
+	font-size: 10px;
+	background-color: #FFF;
+}
+#dt_debug {
+	margin: 1px;
+	border: 1px solid #FF0;
+}
+#ds_restart {
+	text-decoration: underline;
+	cursor: pointer;
+	font-size: 14px;
+}
+#ds_enable {
+	text-decoration: underline;
+	cursor: pointer;
+}
+.dtr_header {
+	background-color: #FFC;
+	text-align: center;
+	font-weight: bold;
+}
+.dtr_labval {
+	background-color: #FFC;
+	text-align: center;
+}
+.dtd_label {
+	width: 100px;
+	vertical-align: top;
+}
+.dtd_value {
+	width: 100px;
+}
