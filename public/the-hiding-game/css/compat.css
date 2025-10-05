@@ -6,35 +6,6 @@
   box-sizing: content-box !important;
 }
 
-/* Apply when the game is embedded inside the SPA (scoped under #legacy-game)
-   and also when the game runs standalone (no #legacy-game ancestor) inside
-   its own page/iframe. */
-
-/* Standalone / iframe: */
-#d_hidden,
-#d_showing {
-  display: none !important;
-}
-
-#d_hand {
-  z-index: 1000;
-  position: absolute;
-}
-
-.number,
-.pad_number img,
-.number img {
-  max-width: none !important;
-  width: auto !important;
-  height: auto !important;
-  display: block !important;
-}
-
-/* Scoped (embedding) fallback */
-#legacy-game * {
-  box-sizing: content-box !important;
-}
-
 /* Ensure number images and pad images keep their intrinsic sizes */
 #legacy-game .number img,
 #legacy-game .pad_number img {
@@ -54,13 +25,4 @@
 #legacy-game #d_hand {
   z-index: 1000;
   position: absolute;
-}
-
-/* Additional scoped rules (keeps previous behavior for embedded scenario) */
-#legacy-game .number img,
-#legacy-game .pad_number img {
-  max-width: none !important;
-  width: auto !important;
-  height: auto !important;
-  display: block;
 }
