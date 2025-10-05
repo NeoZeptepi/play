@@ -105,6 +105,17 @@ export default function MatchTen() {
   }
 
   const remainingPairs = cells.filter((c) => !c.matched).length / 2;
+  const [celebrating, setCelebrating] = useState(false);
+
+  // Trigger celebration when the last pair is matched
+  useEffect(() => {
+    if (remainingPairs === 0) {
+      setCelebrating(true);
+      // stop celebration after 6s
+      const id = window.setTimeout(() => setCelebrating(false), 6000);
+      return () => window.clearTimeout(id);
+    }
+  }, [remainingPairs]);
 
   return (
     <main style={{ maxWidth: 980, margin: "2rem auto", fontFamily: "system-ui, sans-serif" }}>
@@ -164,6 +175,92 @@ export default function MatchTen() {
       {remainingPairs === 0 && (
         <div style={{ marginTop: 18, textAlign: "center" }}>
           <strong>Nice!</strong> You cleared the board in {moves} moves.
+        </div>
+      )}
+
+      {/* Celebration overlay (kid-friendly) */}
+      {celebrating && (
+        <div
+          role="dialog"
+          aria-label="Celebration"
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "auto",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.6))",
+              backdropFilter: "blur(2px)",
+            }}
+          />
+
+          <div style={{ position: "relative", zIndex: 10000, textAlign: "center", padding: 20 }}>
+            <div aria-hidden style={{ fontSize: 46, lineHeight: 1 }}>
+              🎉🎈 Great job! 🎈🎉
+            </div>
+            <div style={{ marginTop: 8, fontSize: 20, color: "#333" }}>
+              You matched all the numbers! You're a Match Ten Champion! 🌟
+            </div>
+
+            <div style={{ marginTop: 14 }}>
+              <button
+                onClick={reset}
+                style={{ padding: "10px 14px", fontSize: 16, cursor: "pointer", borderRadius: 8 }}
+              >
+                Play again
+              </button>
+            </div>
+          </div>
+
+          {/* simple confetti pieces */}
+          <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+            {Array.from({ length: 40 }).map((_, i) => {
+              const left = Math.random() * 100;
+              const delay = Math.random() * 0.8;
+              const duration = 2 + Math.random() * 2;
+              const colors = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#C084FC"];
+              const bg = colors[Math.floor(Math.random() * colors.length)];
+              const rotate = Math.random() * 360;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${left}%`,
+                    top: `-10%`,
+                    width: 10 + Math.random() * 10,
+                    height: 8 + Math.random() * 12,
+                    background: bg,
+                    transform: `rotate(${rotate}deg)`,
+                    borderRadius: 3,
+                    opacity: 0.95,
+                    animation: `matchten-fall ${duration}s linear ${delay}s forwards`,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          <style>{`
+            @keyframes matchten-fall {
+              0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+              70% { opacity: 1; }
+              100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            }
+          `}</style>
+
+          {/* ARIA live region for screen readers */}
+          <div aria-live="polite" style={{ position: "absolute", left: -9999, top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+            Congratulations! You matched all the numbers in {moves} moves.
+          </div>
         </div>
       )}
     </main>
