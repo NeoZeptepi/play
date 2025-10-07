@@ -174,7 +174,7 @@ export default function DoubleAddend() {
   }, [status]);
 
   return (
-    <main style={{ maxWidth: 1100, margin: '2rem auto', fontFamily: 'system-ui, sans-serif', minHeight: '70vh', position: 'relative' }}>
+  <main style={{ maxWidth: 1100, margin: '0 auto 2rem', paddingTop: '.25rem', fontFamily: 'system-ui, sans-serif', minHeight: '70vh', position: 'relative' }}>
       <h1 style={{ marginTop: 0 }}>Double Addend</h1>
       <p style={{ marginTop: 4, fontSize: 16 }}>{message}</p>
       <div style={{ margin: '1rem 0 1.25rem', display: 'flex', gap: 12, flexWrap: 'wrap' }}>

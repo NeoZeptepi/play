@@ -118,7 +118,7 @@ export default function MatchTen() {
   }, [remainingPairs]);
 
   return (
-    <main style={{ maxWidth: 980, margin: "2rem auto", fontFamily: "system-ui, sans-serif" }}>
+  <main style={{ maxWidth: 980, margin: "0 auto 1.75rem", paddingTop: '.25rem', fontFamily: "system-ui, sans-serif" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <h1 style={{ margin: 0 }}>Match Ten</h1>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
