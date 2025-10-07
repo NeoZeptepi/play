@@ -22,9 +22,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const buildStamp = new Date().toISOString();
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} site-body`}>
+    <html lang="en" data-build={new Date().toISOString()}>
+      <body className={`${geistSans.variable} ${geistMono.variable} site-body`} data-build={buildStamp}>
         <header className="site-header">Play games on Garrett.org</header>
         <div className="layout-shell">
           <nav className="site-nav">
@@ -38,7 +39,7 @@ export default function RootLayout({
           </nav>
           <main className="site-main">{children}</main>
         </div>
-        <footer className="site-footer">&copy; {new Date().getFullYear()} Garrett.org &mdash; Play for fun!</footer>
+        <footer className="site-footer">&copy; {new Date().getFullYear()} Garrett.org &mdash; Play for fun! <span className="build-stamp">Build: {buildStamp}</span></footer>
         <style>{`
           .site-body { margin:0; padding:0; min-height:100vh; display:flex; flex-direction:column; }
           .site-header { width:100%; background:#222; color:#fff; padding:.75rem 1.25rem; font-size:1.3rem; font-weight:700; letter-spacing:.05em; box-shadow:0 2px 8px rgba(0,0,0,0.04); line-height:1.15; }
@@ -51,12 +52,12 @@ export default function RootLayout({
             .nav-list a { color:#222; text-decoration:none; font-weight:500; font-size:.95rem; }
           .site-main { flex:1; padding:.85rem 1.35rem 3.5rem; min-height:0; background:#fff; overflow:auto; color:#222; }
           .site-main > h1:first-child { margin-top:0; }
-          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.5rem 1.1rem; text-align:center; font-size:.85rem; letter-spacing:.03em; z-index:50; }
-          /* Vertically constrained: footer becomes normal flow so it only appears when reaching bottom */
-          @media (max-height: 760px) { 
-            .site-footer { position:static; padding:.65rem 1rem 1rem; }
-            .site-main { padding-bottom:1.25rem; }
-          }
+          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.5rem 1.1rem; text-align:center; font-size:.75rem; letter-spacing:.03em; z-index:50; transform:translateY(100%); opacity:0; transition:transform .35s ease, opacity .35s ease; }
+          .build-stamp { margin-left:.75rem; opacity:0; font-weight:400; letter-spacing:0; font-size:.6rem; color:#999; transition:opacity .3s ease; }
+          .site-footer:hover .build-stamp { opacity:.75; }
+          .show-footer .site-footer { transform:translateY(0); opacity:1; }
+          /* Provide extra bottom padding so content not obscured when footer slides in */
+          .show-footer .site-main { padding-bottom:4.5rem; }
 
           /* Tighten spacing progressively */
           @media (max-width: 1200px) {
@@ -69,13 +70,15 @@ export default function RootLayout({
             .site-main { padding:.7rem .7rem 3rem; }
             .nav-list a { font-size:.9rem; }
           }
-          @media (max-width: 1000px) {
-            .site-nav { width:140px; padding:.7rem .45rem .45rem; }
-            .site-main { padding:.6rem .55rem 2.75rem; }
-            .site-header { font-size:1.12rem; }
+          /* Additional compression before stacked nav engages */
+          @media (max-width: 1040px) {
+            .site-nav { width:150px; padding:.85rem .5rem .5rem; }
+            .site-main { padding:.65rem .6rem 2.85rem; }
+            .site-header { font-size:1.15rem; }
           }
           /* Stack nav on very narrow widths to reclaim horizontal space for 800px iframe */
-          @media (max-width: 940px) {
+          /* Stacked / inline nav earlier (<= 1000px) */
+          @media (max-width: 1000px) {
             .layout-shell { flex-direction:column; }
             .site-nav { width:100%; border-right:none; border-bottom:1px solid #e0e0e0; display:flex; flex-wrap:wrap; align-items:center; gap:.35rem .55rem; padding:.35rem .45rem .25rem; }
             .nav-heading { width:auto; margin:0 .5rem 0 0; font-size:.9rem; line-height:1; }
@@ -98,6 +101,7 @@ export default function RootLayout({
             .site-main { padding:.35rem .3rem 2rem; }
           }
         `}</style>
+        <script dangerouslySetInnerHTML={{__html:`(function(){const root=document.documentElement;const body=document.body;function check(){var sc=(window.scrollY||window.pageYOffset);var vh=window.innerHeight;var h=body.scrollHeight; if(sc+vh>=h-8){body.classList.add('show-footer');} else {body.classList.remove('show-footer');}};window.addEventListener('scroll',check,{passive:true});window.addEventListener('resize',check);document.addEventListener('DOMContentLoaded',check);check();})();`}} />
       </body>
     </html>
   );
