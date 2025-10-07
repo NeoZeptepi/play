@@ -49,46 +49,51 @@ export default function RootLayout({
             .nav-list { list-style:none; margin:0; padding:0; }
             .nav-list li { margin-bottom:1rem; }
             .nav-list a { color:#222; text-decoration:none; font-weight:500; font-size:.95rem; }
-          .site-main { flex:1; padding:1.6rem 2rem 4rem; min-height:0; background:#fff; overflow:auto; color:#222; }
-          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.55rem 1.25rem; text-align:center; font-size:.9rem; letter-spacing:.03em; z-index:50; transition:transform 200ms ease, opacity 200ms ease; }
-          /* Hide footer initially on small heights */
-          @media (max-height: 760px) { .site-footer { transform:translateY(100%); opacity:0; } .site-main:focus-within ~ .site-footer, .site-main:hover ~ .site-footer { transform:translateY(0); opacity:1; } }
+          .site-main { flex:1; padding:1.1rem 1.5rem 4rem; min-height:0; background:#fff; overflow:auto; color:#222; }
+          .site-main > h1:first-child { margin-top:.15rem; }
+          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.5rem 1.1rem; text-align:center; font-size:.85rem; letter-spacing:.03em; z-index:50; }
+          /* Vertically constrained: footer becomes normal flow so it only appears when reaching bottom */
+          @media (max-height: 760px) { 
+            .site-footer { position:static; padding:.65rem 1rem 1rem; }
+            .site-main { padding-bottom:1.25rem; }
+          }
 
           /* Tighten spacing progressively */
           @media (max-width: 1200px) {
-            .site-nav { width:190px; padding:1.3rem .65rem .65rem; }
-            .site-main { padding:1.3rem 1.1rem 4rem; }
-            .site-header { padding:.8rem 1.25rem; font-size:1.25rem; }
+            .site-nav { width:190px; padding:1.2rem .6rem .6rem; }
+            .site-main { padding:1rem .95rem 3.5rem; }
+            .site-header { padding:.75rem 1.2rem; font-size:1.25rem; }
           }
           @media (max-width: 1080px) {
             .site-nav { width:160px; }
-            .site-main { padding:1.15rem .9rem 4rem; }
+            .site-main { padding:.9rem .8rem 3.25rem; }
             .nav-list a { font-size:.9rem; }
           }
           @media (max-width: 1000px) {
-            .site-nav { width:140px; padding:1rem .55rem .55rem; }
-            .site-main { padding:.9rem .75rem 4rem; }
+            .site-nav { width:140px; padding:.85rem .5rem .5rem; }
+            .site-main { padding:.75rem .65rem 3rem; }
             .site-header { font-size:1.15rem; }
           }
           /* Stack nav on very narrow widths to reclaim horizontal space for 800px iframe */
           @media (max-width: 940px) {
             .layout-shell { flex-direction:column; }
-            .site-nav { width:100%; border-right:none; border-bottom:1px solid #e0e0e0; display:flex; flex-wrap:wrap; gap:.55rem .8rem; padding:.6rem .6rem .4rem; }
-            .nav-heading { width:100%; margin:0 0 .25rem; }
-            .nav-list { display:flex; flex-wrap:wrap; gap:.45rem .85rem; }
+            .site-nav { width:100%; border-right:none; border-bottom:1px solid #e0e0e0; display:flex; flex-wrap:wrap; gap:.4rem .6rem; padding:.45rem .5rem .3rem; }
+            .nav-heading { width:100%; margin:0 0 .15rem; font-size:.95rem; }
+            .nav-list { display:flex; flex-wrap:wrap; gap:.35rem .65rem; }
             .nav-list li { margin:0; }
-            .site-main { padding:.7rem .6rem 4rem; }
+            .nav-list a { font-size:.85rem; }
+            .site-main { padding:.55rem .5rem 3rem; }
           }
           @media (max-width: 860px) {
-            .site-header { padding:.65rem .9rem; font-size:1.05rem; }
-            .site-main { padding:.6rem .45rem 4rem; }
-            .site-footer { padding:.5rem .85rem; font-size:.8rem; }
+            .site-header { padding:.55rem .8rem; font-size:1.05rem; }
+            .site-main { padding:.5rem .4rem 3rem; }
+            .site-footer { padding:.5rem .8rem; font-size:.75rem; }
           }
           /* Extra narrow devices - reduce header/nav spacing further */
           @media (max-width: 520px) {
-            .site-header { padding:.55rem .75rem; font-size:.95rem; }
-            .site-nav { padding:.5rem .5rem .35rem; }
-            .site-main { padding:.5rem .4rem 4rem; }
+            .site-header { padding:.45rem .65rem; font-size:.95rem; }
+            .site-nav { padding:.4rem .4rem .3rem; }
+            .site-main { padding:.4rem .35rem 2.25rem; }
           }
         `}</style>
       </body>
