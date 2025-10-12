@@ -7,6 +7,7 @@
     "build": "next build",
   "export:static": "next build",
   "deploy:cf": "npm run export:static && npx wrangler pages deploy out --commit-dirty=true",
+    "scaffold:game": "node scripts/create-game.js",
     "start": "next start",
     "lint": "eslint"
   },

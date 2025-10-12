@@ -35,7 +35,7 @@ Navigation lives in `src/app/layout.tsx`.
 
 Docs
 ----
-See `docs/MIGRATION.md` (full environment replication), `docs/ONBOARDING.md` (teacher quick guide), and `docs/COPILOT.md` (Copilot publishing guide).
+See `docs/MIGRATION.md` (full environment replication), `docs/ONBOARDING.md` (teacher quick guide), `docs/ADD_GAME.md` (add new games), and `docs/COPILOT.md` (Copilot publishing guide).
 
 Branch / PR Flow
 ----------------
