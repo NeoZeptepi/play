@@ -80,13 +80,15 @@ GitHub → Cloudflare (Preferred):
  - Each PR branch gets a Preview URL automatically.
 
 Manual CLI Deploy (Fallback):
- - Runs static build (Next 15 exports automatically due to output: export) then uploads with Wrangler.
- - Commands:
-    npm run export:static
+ - Runs static build then uploads with Wrangler (deploy script now builds first automatically).
+ - Command:
     npm run deploy:cf
+ - What it does:
+    1) next build (writes fresh static output to out/)
+    2) wrangler pages deploy out --commit-dirty=true
  - Requires Wrangler auth already set up (once):
-    npm install -g wrangler (optional if using npx)
     npx wrangler login
+ - Tip: If you don’t see changes, append a query param (e.g., ?v=1) or Purge Everything in Cloudflare Pages → Settings → Cache.
 
 ---
 Security / Account Options
@@ -127,8 +129,8 @@ git push origin feature
 Open PR → Merge
 
 npm run dev           # local development
-npm run export:static # static build (out/)
-npm run deploy:cf     # deploy static export to Cloudflare
+npm run export:static # optional: static build only (writes to out/)
+npm run deploy:cf     # build + deploy to Cloudflare (preferred)
 
 ---
 When to Ask for Help

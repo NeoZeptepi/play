@@ -23,15 +23,19 @@ Open http://localhost:3000
 Static Export & Deploy (Cloudflare Pages)
 ----------------------------------------
 ```bash
-npm run export:static   # static build (produces out/ because output: export)
-npm run deploy:cf       # deploy the out/ directory with Wrangler
+npm run deploy:cf       # builds then deploys the out/ directory with Wrangler
+# optional:
+npm run export:static   # just builds static output (out/) without deploying
 ```
+Notes:
+- If you don’t see changes live, add ?v=1 to the URL or Purge Everything in Cloudflare Pages cache.
+- Pushing to main triggers Cloudflare’s repo-connected build too (recommended for production).
 
 Navigation lives in `src/app/layout.tsx`.
 
 Docs
 ----
-See `docs/MIGRATION.md` (full environment replication) and `docs/ONBOARDING.md` (teacher quick guide).
+See `docs/MIGRATION.md` (full environment replication), `docs/ONBOARDING.md` (teacher quick guide), and `docs/COPILOT.md` (Copilot publishing guide).
 
 Branch / PR Flow
 ----------------
