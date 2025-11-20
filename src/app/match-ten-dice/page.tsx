@@ -49,7 +49,7 @@ function DiceSVG({ value }: { value: number }) {
   );
 }
 
-export default function MatchTenDice() {
+export default function MakeTenDice() {
   const [cells, setCells] = useState<DieCell[]>(() => makeBoard());
   const [selected, setSelected] = useState<number[]>([]);
   const [matches, setMatches] = useState(0); // number of successful sets found
@@ -142,7 +142,7 @@ export default function MatchTenDice() {
   <main style={{ maxWidth: 980, margin: '0 auto 1.75rem', paddingTop: '.25rem', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 12 }}>
-          <h1 style={{ margin: 0 }}>Match Ten Dice</h1>
+          <h1 style={{ margin: 0 }}>Make 10 Dice</h1>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center', fontSize: 14, flexWrap: 'wrap' }}>
             <div style={{ color: '#222', fontWeight: 600 }}>Sets: <span style={{ fontWeight: 700 }}>{matches}</span></div>
             <div style={{ color: '#222', fontWeight: 600 }}>Dice left: <span style={{ fontWeight: 700 }}>{diceRemaining}</span></div>
@@ -192,7 +192,7 @@ export default function MatchTenDice() {
       </div>
       <div style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>Select 2, 3, or 4 dice to make the sum of <strong>ten</strong>. Use <em>Roll Remaining</em> anytime for fresh combinations. Correct sets roll out!</div>
 
-      <div role="grid" aria-label="Match Ten Dice grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, maxWidth: 720, margin: '0 auto' }}>
+  <div role="grid" aria-label="Make 10 Dice grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, maxWidth: 720, margin: '0 auto' }}>
         {cells.map((cell, idx) => {
           const isSelected = selected.includes(idx);
           const isMatched = cell.matched;

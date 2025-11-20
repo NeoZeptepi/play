@@ -7,7 +7,7 @@ Key Games
 ---------
 * The Hiding Game (legacy iframe, preserved)
 * Match Ten (pair numbers to sum 10)
-* Match Ten Dice (2–4 dice, select dice that sum to 10)
+* Make 10 Dice (2–4 dice, select dice that sum to 10)
 * Double Addend (find the addend that doubles to target)
 
 Quick Start

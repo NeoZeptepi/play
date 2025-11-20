@@ -33,7 +33,7 @@ export default function RootLayout({
             <ul className="nav-list">
               <li><a href="/the-hiding-game">The Hiding Game</a></li>
               <li><a href="/match-ten">Match Ten</a></li>
-              <li><a href="/match-ten-dice">Match Ten Dice</a></li>
+              <li><a href="/match-ten-dice">Make 10 Dice</a></li>
               <li><a href="/double-addend">Double Addend</a></li>
             </ul>
           </nav>
