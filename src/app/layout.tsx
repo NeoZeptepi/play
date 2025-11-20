@@ -34,6 +34,7 @@ export default function RootLayout({
               <li><a href="/the-hiding-game">The Hiding Game</a></li>
               <li><a href="/match-ten">Match Ten</a></li>
               <li><a href="/match-ten-dice">Match Ten Dice</a></li>
+              <li><a href="/match-ten-cards">Match Ten Cards</a></li>
               <li><a href="/make-10-dice">Make 10 Dice</a></li>
               <li><a href="/double-addend">Double Addend</a></li>
             </ul>
