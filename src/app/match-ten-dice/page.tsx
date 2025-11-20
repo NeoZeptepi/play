@@ -2,14 +2,43 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-// Dice values 1..6; NEW goal: select 2, 3, or 4 dice whose total adds to 10.
-// 6x6 grid (36 cells) like original variant.
-
-interface DieCell {
+type Cell = {
   id: number;
-  value: number; // 1-6
+  value: number;
   matched: boolean;
-}
+};
+
+const PAIRS: Array<[number, number]> = [
+  [1, 9],
+  [2, 8],
+  [3, 7],
+  [4, 6],
+  [5, 5],
+];
+
+const COLORS = [
+  "#FDE68A",
+  "#FBCFE8",
+  "#C7D2FE",
+  "#BFDBFE",
+  "#FCD34D",
+  "#FCA5A5",
+  "#D9F99D",
+  "#A5F3FC",
+  "#F5D0FE",
+];
+
+const pipLayouts: Record<number, number[]> = {
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+  7: [0, 2, 3, 4, 5, 6, 8],
+  8: [0, 2, 3, 4, 5, 6, 7, 8],
+  9: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+};
 
 function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
@@ -20,106 +49,105 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function makeBoard(): DieCell[] {
-  // Just fill with random 1..6 values for now (uniform). 36 dice.
+function makeBoard(): Cell[] {
   const values: number[] = [];
-  for (let i = 0; i < 36; i++) {
-    values.push(1 + Math.floor(Math.random() * 6));
+  for (let i = 0; i < 18; i++) {
+    const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+    values.push(pair[0], pair[1]);
   }
-  return values.map((v, idx) => ({ id: idx, value: v, matched: false }));
+  return shuffle(values).map((value, idx) => ({ id: idx, value, matched: false }));
 }
 
-// Stable 2D SVG dice (replacing experimental 3D)
-function DiceSVG({ value }: { value: number }) {
-  const pipSets: Record<number, Array<[number, number]>> = {
-    1: [[24,24]],
-    2: [[12,12],[36,36]],
-    3: [[12,12],[24,24],[36,36]],
-    4: [[12,12],[12,36],[36,12],[36,36]],
-    5: [[12,12],[12,36],[24,24],[36,12],[36,36]],
-    6: [[12,12],[12,24],[12,36],[36,12],[36,24],[36,36]],
-  };
+function DiceFace({ value }: { value: number }) {
+  const layout = pipLayouts[value] ?? [];
   return (
-    <svg viewBox="0 0 48 48" width={48} height={48} aria-hidden style={{ display:'block' }}>
-      <rect x={1.5} y={1.5} width={45} height={45} rx={10} ry={10} fill="#fff" stroke="#222" strokeWidth={2.5} />
-      {pipSets[value].map((p,i) => (
-        <circle key={i} cx={p[0]} cy={p[1]} r={4.2} fill="#111" />
+    <div
+      aria-hidden
+      style={{
+        width: 56,
+        height: 56,
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gridTemplateRows: "repeat(3, 1fr)",
+        gap: 3,
+        padding: 6,
+      }}
+    >
+      {Array.from({ length: 9 }).map((_, idx) => (
+        <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {layout.includes(idx) ? (
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: "#0f172a",
+                boxShadow: "0 1px 0 rgba(0,0,0,0.3)",
+              }}
+            />
+          ) : null}
+        </div>
       ))}
-    </svg>
+    </div>
   );
 }
 
-export default function MakeTenDice() {
-  const [cells, setCells] = useState<DieCell[]>(() => makeBoard());
+export default function MatchTenDice() {
+  const [cells, setCells] = useState<Cell[]>(() => makeBoard());
   const [selected, setSelected] = useState<number[]>([]);
-  const [matches, setMatches] = useState(0); // number of successful sets found
+  const [moves, setMoves] = useState(0);
   const [blocked, setBlocked] = useState(false);
-  const [celebrating, setCelebrating] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
 
-  // For entry animation state
-  const [entered, setEntered] = useState(false);
-  const [rolling, setRolling] = useState(false); // reroll animation state
-  useEffect(() => { const id = window.setTimeout(() => setEntered(true), 30); return () => window.clearTimeout(id); }, []);
-
-  useEffect(() => () => { if (timeoutRef.current) window.clearTimeout(timeoutRef.current); }, []);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   function reset() {
-    if (timeoutRef.current) { window.clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     setCells(makeBoard());
     setSelected([]);
-    setMatches(0);
+    setMoves(0);
     setBlocked(false);
     setCelebrating(false);
-    setEntered(false);
-    setRolling(false);
-    requestAnimationFrame(() => setEntered(true));
   }
 
-  function rerollRemaining() {
+  function handleClick(index: number) {
     if (blocked) return;
-    setBlocked(true);
-    setSelected([]);
-    setRolling(true);
-    // Re-randomize only unmatched dice
-    setCells(prev => prev.map(c => c.matched ? c : { ...c, value: 1 + Math.floor(Math.random() * 6) }));
-    // Let animation play
-    window.setTimeout(() => {
-      setRolling(false);
-      setBlocked(false);
-    }, 650);
-  }
-
-  function handleClick(i: number) {
-    if (blocked) return;
-    const cell = cells[i];
+    const cell = cells[index];
     if (cell.matched) return;
-
-    // Toggle off if already selected
-    if (selected.includes(i)) {
-      setSelected(s => s.filter(x => x !== i));
+    if (selected.includes(index)) {
+      setSelected((s) => s.filter((idx) => idx !== index));
       return;
     }
+    if (selected.length === 0) {
+      setSelected([index]);
+      return;
+    }
+    if (selected.length === 1) {
+      const otherIdx = selected[0];
+      if (otherIdx === index) return;
+      const first = cells[otherIdx];
+      const second = cell;
+      setSelected([otherIdx, index]);
+      setBlocked(true);
+      setMoves((m) => m + 1);
 
-    // Add selection (limit 4 at a time)
-    if (selected.length < 4) {
-      const newSel = [...selected, i];
-      setSelected(newSel);
-      const sum = newSel.reduce((acc, idx) => acc + cells[idx].value, 0);
-      const count = newSel.length;
-
-      if (sum === 10 && count >= 2 && count <= 4) {
-        // Successful match set
-        setBlocked(true);
+      if (first.value + second.value === 10) {
         timeoutRef.current = window.setTimeout(() => {
-          setCells(prev => prev.map(c => newSel.includes(c.id) ? { ...c, matched: true } : c));
+          setCells((prev) =>
+            prev.map((c) => (c.id === first.id || c.id === second.id ? { ...c, matched: true } : c))
+          );
           setSelected([]);
           setBlocked(false);
-          setMatches(m => m + 1);
         }, 400);
-      } else if (sum > 10 || (count === 4 && sum !== 10)) {
-        // Bust -> clear after brief feedback delay
-        setBlocked(true);
+      } else {
         timeoutRef.current = window.setTimeout(() => {
           setSelected([]);
           setBlocked(false);
@@ -128,144 +156,199 @@ export default function MakeTenDice() {
     }
   }
 
-  const diceRemaining = cells.filter(c => !c.matched).length;
+  const remainingPairs = cells.filter((c) => !c.matched).length / 2;
 
   useEffect(() => {
-    if (diceRemaining === 0 && cells.length) {
+    if (remainingPairs === 0 && moves > 0) {
       setCelebrating(true);
-      const id = window.setTimeout(() => setCelebrating(false), 5500);
+      const id = window.setTimeout(() => setCelebrating(false), 5000);
       return () => window.clearTimeout(id);
     }
-  }, [diceRemaining, cells]);
+  }, [remainingPairs, moves]);
 
   return (
-  <main style={{ maxWidth: 980, margin: '0 auto 1.75rem', paddingTop: '.25rem', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 12 }}>
-          <h1 style={{ margin: 0 }}>Make 10 Dice</h1>
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center', fontSize: 14, flexWrap: 'wrap' }}>
-            <div style={{ color: '#222', fontWeight: 600 }}>Sets: <span style={{ fontWeight: 700 }}>{matches}</span></div>
-            <div style={{ color: '#222', fontWeight: 600 }}>Dice left: <span style={{ fontWeight: 700 }}>{diceRemaining}</span></div>
-          </div>
+    <main
+      style={{
+        maxWidth: 1000,
+        margin: "0 auto 1.75rem",
+        paddingTop: ".25rem",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+          marginBottom: 16,
+        }}
+      >
+        <div>
+          <h1 style={{ margin: 0 }}>Match Ten Dice</h1>
+          <p style={{ margin: "4px 0 0", color: "#475569" }}>
+            Tap two colorful dice whose dots add to ten.
+          </p>
         </div>
-        <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <button
-            onClick={rerollRemaining}
-            disabled={blocked || diceRemaining === 0}
-            style={{
-              padding: '10px 16px',
-              cursor: blocked || diceRemaining === 0 ? 'not-allowed' : 'pointer',
-              background: blocked || diceRemaining === 0 ? '#ddd' : '#0070f3',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: '.5px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.12)',
-              transition: 'background 160ms ease'
-            }}
-            aria-label="Roll all remaining unmatched dice"
-          >
-            Roll Remaining
-          </button>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ color: "#0f172a", fontWeight: 600 }}>Moves: {moves}</div>
+          <div style={{ color: "#0f172a", fontWeight: 600 }}>Pairs left: {remainingPairs}</div>
           <button
             onClick={reset}
             style={{
-              padding: '10px 16px',
-              cursor: 'pointer',
-              background: '#555',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 14,
+              padding: "9px 16px",
+              background: "#0ea5e9",
+              color: "#fff",
+              border: "none",
+              borderRadius: 999,
+              cursor: "pointer",
               fontWeight: 600,
-              letterSpacing: '.5px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.12)',
-              transition: 'background 160ms ease'
+              boxShadow: "0 5px 18px rgba(14,165,233,0.32)",
             }}
-            aria-label="Reset the entire board"
           >
-            Reset
+            Reset Board
           </button>
         </div>
       </div>
-      <div style={{ marginBottom: 12, color: '#333', fontSize: 14 }}>Select 2, 3, or 4 dice to make the sum of <strong>ten</strong>. Use <em>Roll Remaining</em> anytime for fresh combinations. Correct sets roll out!</div>
 
-  <div role="grid" aria-label="Make 10 Dice grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, maxWidth: 720, margin: '0 auto' }}>
+      <div
+        role="grid"
+        aria-label="Match Ten Dice grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          gap: 14,
+          maxWidth: 860,
+          margin: "0 auto",
+        }}
+      >
         {cells.map((cell, idx) => {
           const isSelected = selected.includes(idx);
           const isMatched = cell.matched;
-          const entering = !entered;
-          const classes = [entering ? 'die-enter' : '', isMatched ? 'die-out' : '', isSelected ? 'die-selected' : '', (!isMatched && rolling) ? 'die-reroll' : ''].filter(Boolean).join(' ');
-          const row = Math.floor(idx / 6);
-          const col = idx % 6;
-          const delayMs = row * 140 + col * 55; // wave timing
+          const color = COLORS[(cell.value - 1) % COLORS.length];
           return (
             <button
               key={cell.id}
               onClick={() => handleClick(idx)}
               aria-pressed={isSelected}
-              disabled={isMatched || rolling}
-              className={classes}
+              disabled={isMatched}
+              aria-label={`Die showing ${cell.value} dots${isMatched ? " (matched)" : ""}`}
               style={{
-                height: 72,
-                borderRadius: 10,
-                border: isSelected ? '2px solid #0070f3' : '1px solid #ccc',
-                background: isMatched ? 'transparent' : '#fff',
-                boxShadow: isMatched ? 'none' : '0 1px 3px rgba(0,0,0,0.18)',
-                cursor: isMatched || rolling ? 'default' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                transition: 'border 160ms ease, background 160ms ease',
-                padding: 0,
-                ['--enter-delay' as any]: `${delayMs}ms`
+                aspectRatio: "1 / 1",
+                borderRadius: 20,
+                border: isSelected ? "3px solid #0ea5e9" : "2px solid rgba(15,23,42,0.1)",
+                background: isMatched ? "transparent" : color,
+                boxShadow: isMatched
+                  ? "none"
+                  : "0 8px 20px rgba(15,23,42,0.15), inset 0 0 0 1px rgba(255,255,255,0.5)",
+                cursor: isMatched ? "default" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                transition: "transform 140ms ease, border 160ms ease",
+                transform: isSelected ? "translateY(-4px)" : "translateY(0)",
               }}
-              aria-label={`Die showing ${cell.value}${isMatched ? ' (matched)' : ''}`}
             >
-              {!isMatched && <DiceSVG value={cell.value} />}
+              {!isMatched && <DiceFace value={cell.value} />}
+              {isMatched && (
+                <span style={{ fontSize: 18, color: "#10b981", fontWeight: 700 }}>✔</span>
+              )}
             </button>
           );
         })}
       </div>
 
       {celebrating && (
-        <div role="dialog" aria-label="Celebration" style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto', zIndex: 9999 }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.7))', backdropFilter: 'blur(2px)' }} />
-          <div style={{ position: 'relative', zIndex: 10000, textAlign: 'center', padding: 20 }}>
-            <div style={{ fontSize: 42, lineHeight: 1 }}>🎲 Board Cleared! 🎲</div>
-            <div style={{ marginTop: 8, fontSize: 18, color: '#333' }}>Great job forming sets that add to ten.</div>
-            <div style={{ marginTop: 14 }}><button onClick={reset} style={{ padding: '10px 14px', fontSize: 16, cursor: 'pointer', borderRadius: 8 }}>Play again</button></div>
+        <div
+          role="dialog"
+          aria-label="You cleared every pair"
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "auto",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(15,23,42,0.65)",
+              backdropFilter: "blur(3px)",
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              zIndex: 1010,
+              background: "white",
+              padding: "24px 32px",
+              borderRadius: 20,
+              textAlign: "center",
+              boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div style={{ fontSize: 40 }}>🎲✨</div>
+            <h2 style={{ margin: "12px 0 4px" }}>Ten out of Ten!</h2>
+            <p style={{ margin: 0, color: "#475569" }}>Every pair of dice is matched. Fantastic focus!</p>
+            <button
+              onClick={reset}
+              style={{
+                marginTop: 16,
+                padding: "10px 18px",
+                borderRadius: 999,
+                border: "none",
+                background: "#10b981",
+                color: "#fff",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Play again
+            </button>
           </div>
-          <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-            {Array.from({ length: 34 }).map((_, i) => {
+          <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+            {Array.from({ length: 45 }).map((_, i) => {
               const left = Math.random() * 100;
-              const delay = Math.random() * 0.9;
-              const duration = 2 + Math.random() * 2.2;
-              const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#C084FC'];
-              const bg = colors[Math.floor(Math.random() * colors.length)];
-              const rotate = Math.random() * 360;
+              const delay = Math.random() * 1.2;
+              const duration = 2 + Math.random() * 2.5;
+              const colors = ["#0ea5e9", "#f97316", "#a855f7", "#22c55e", "#facc15"];
+              const size = 6 + Math.random() * 10;
               return (
-                <div key={i} style={{ position: 'absolute', left: `${left}%`, top: '-10%', width: 10 + Math.random() * 10, height: 8 + Math.random() * 12, background: bg, transform: `rotate(${rotate}deg)`, borderRadius: 3, opacity: 0.95, animation: `dice-fall ${duration}s linear ${delay}s forwards` }} />
+                <span
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${left}%`,
+                    top: "-10%",
+                    width: size,
+                    height: size,
+                    borderRadius: 2,
+                    background: colors[Math.floor(Math.random() * colors.length)],
+                    opacity: 0.9,
+                    animation: `dice-confetti ${duration}s linear ${delay}s forwards`,
+                  }}
+                />
               );
             })}
           </div>
-          <style>{`@keyframes dice-fall {0%{transform:translateY(-10vh) rotate(0deg);opacity:1;}70%{opacity:1;}100%{transform:translateY(110vh) rotate(360deg);opacity:0;}}`}</style>
-          <div aria-live="polite" style={{ position: 'absolute', left: -9999, top: 'auto', width: 1, height: 1, overflow: 'hidden' }}>Congratulations! You cleared the board by making sums of ten.</div>
+          <style>{`
+            @keyframes dice-confetti {
+              0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+              70% { opacity: 1; }
+              100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+            }
+          `}</style>
+          <div aria-live="polite" style={{ position: "absolute", left: -9999, width: 1, height: 1, overflow: "hidden" }}>
+            Awesome! You matched every dice pair.
+          </div>
         </div>
       )}
-      <style>{`
-  .die-enter { animation: rollIn 640ms cubic-bezier(.5,.9,.25,1.15) forwards; animation-delay: var(--enter-delay,0ms); opacity:0; }
-  .die-selected { outline: 2px solid #0070f3; outline-offset: 2px; }
-  .die-out { animation: rollOut 520ms cubic-bezier(.55,.1,.9,.55) forwards; }
-  .die-reroll { animation: rollReroll 520ms cubic-bezier(.55,.1,.9,.55); }
-  @keyframes rollIn { 0% { transform: translateY(-28px) rotate(-270deg) scale(.35); opacity:0;} 55% { transform: translateY(6px) rotate(380deg) scale(1.05); opacity:1;} 75% { transform: translateY(-4px) rotate(350deg) scale(.97);} 100% { transform: translateY(0) rotate(360deg) scale(1); opacity:1;} }
-  @keyframes rollOut { 0% { transform: rotate(0deg) scale(1); opacity:1;} 35% { transform: rotate(250deg) scale(1.15); opacity:1;} 100% { transform: rotate(540deg) scale(.2); opacity:0;} }
-  @keyframes rollReroll { 0% { transform: rotate(0deg) scale(1);} 40% { transform: rotate(420deg) scale(.7);} 70% { transform: rotate(600deg) scale(1.08);} 100% { transform: rotate(720deg) scale(1);} }
-  @media (prefers-reduced-motion: reduce) { .die-enter, .die-reroll, .die-out { animation:none !important; opacity:1 !important; transform:none !important; } }
-      `}</style>
     </main>
   );
 }
