@@ -13,12 +13,18 @@ type CardStyle = {
   rotation: number;
 };
 
+type FireworkPattern = "burst" | "ring" | "spray" | "spark";
+
 type Firework = {
   id: number;
   x: number;
   hue: number;
   delay: number;
   origin: "top" | "bottom";
+  pattern: FireworkPattern;
+  burstSize: number;
+  travelMultiplier: number;
+  burstShadow: string;
 };
 
 const TOTAL_TIME_MS = 2 * 60 * 1000; // two minutes
@@ -26,6 +32,61 @@ const DEAL_INTERVAL_MS = 5000;
 const MAX_VISIBLE = 10;
 const INITIAL_VISIBLE = MAX_VISIBLE;
 const FIREWORK_DURATION_MS = 2200;
+
+const FIREWORK_PATTERNS: FireworkPattern[] = ["burst", "ring", "spray", "spark"];
+
+const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
+
+const toShadow = (x: number, y: number, blur = 0, spread = -3) =>
+  `${x.toFixed(1)}px ${y.toFixed(1)}px ${blur}px ${spread}px currentColor`;
+
+const buildFireworkShadow = (pattern: FireworkPattern, size: number) => {
+  const entries: string[] = ["0 0 22px currentColor", "0 0 38px rgba(255,255,255,0.3)"];
+
+  if (pattern === "burst") {
+    const rays = 8 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < rays; i++) {
+      const angle = (Math.PI * 2 * i) / rays;
+      const radius = randomBetween(26, 48) * size;
+      entries.push(toShadow(Math.cos(angle) * radius, Math.sin(angle) * radius, 0, -3));
+    }
+  } else if (pattern === "ring") {
+    const dots = 12 + Math.floor(Math.random() * 4);
+    const outer = randomBetween(32, 54) * size;
+    for (let i = 0; i < dots; i++) {
+      const angle = (Math.PI * 2 * i) / dots;
+      entries.push(toShadow(Math.cos(angle) * outer, Math.sin(angle) * outer, 0, -4));
+    }
+    const inner = outer * randomBetween(0.45, 0.7);
+    entries.push(toShadow(0, 0, Math.max(8, inner * 0.6), -6));
+  } else if (pattern === "spray") {
+    const sparks = 10 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < sparks; i++) {
+      const radius = randomBetween(20, 60) * size;
+      const angle = randomBetween(-Math.PI / 1.8, Math.PI / 1.8);
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius + randomBetween(4, 20) * size;
+      entries.push(toShadow(x, y, 0, -2));
+    }
+  } else {
+    const cross = randomBetween(20, 36) * size;
+    entries.push(
+      toShadow(cross, 0, 0, -3),
+      toShadow(-cross, 0, 0, -3),
+      toShadow(0, cross, 0, -3),
+      toShadow(0, -cross, 0, -3)
+    );
+    const diagonals = cross * 0.7;
+    entries.push(
+      toShadow(diagonals, diagonals, 0, -3),
+      toShadow(-diagonals, diagonals, 0, -3),
+      toShadow(diagonals, -diagonals, 0, -3),
+      toShadow(-diagonals, -diagonals, 0, -3)
+    );
+  }
+
+  return entries.join(", ");
+};
 
 const CARD_POSITIONS = [
   { top: 22, left: 18 },
@@ -157,13 +218,22 @@ export default function MatchTenCards() {
       setFireworks([]);
       return;
     }
-    const rockets: Firework[] = Array.from({ length: total }).map((_, idx) => ({
-      id: fireworkIdRef.current++,
-      x: 10 + Math.random() * 80,
-      hue: 180 + Math.random() * 120,
-      delay: idx * 120,
-      origin: idx % 2 === 0 ? "bottom" : "top",
-    }));
+    const rockets: Firework[] = Array.from({ length: total }).map((_, idx) => {
+      const pattern = FIREWORK_PATTERNS[Math.floor(Math.random() * FIREWORK_PATTERNS.length)];
+      const burstSize = 1.15 + Math.random() * 1.35;
+      const travelMultiplier = 0.85 + Math.random() * 1.15;
+      return {
+        id: fireworkIdRef.current++,
+        x: 8 + Math.random() * 84,
+        hue: 180 + Math.random() * 120,
+        delay: idx * 140 + Math.random() * 160,
+        origin: Math.random() > 0.5 ? "bottom" : "top",
+        pattern,
+        burstSize,
+        travelMultiplier,
+        burstShadow: buildFireworkShadow(pattern, burstSize),
+      };
+    });
     setFireworks(rockets);
   }, []);
 
@@ -531,12 +601,18 @@ export default function MatchTenCards() {
             const fireworkStyle: CSSProperties & {
               ["--match-ten-delay"]?: string;
               ["--match-ten-direction"]?: string;
+              ["--match-ten-travel"]?: string;
+              ["--match-ten-burst-size"]?: string;
+              ["--match-ten-burst-shadow"]?: string;
             } = {
               left: `${fw.x}%`,
               color: `hsl(${fw.hue}deg 85% 68%)`,
             };
             fireworkStyle["--match-ten-delay"] = `${fw.delay}ms`;
             fireworkStyle["--match-ten-direction"] = fw.origin === "top" ? "-1" : "1";
+            fireworkStyle["--match-ten-travel"] = fw.travelMultiplier.toFixed(2);
+            fireworkStyle["--match-ten-burst-size"] = fw.burstSize.toFixed(2);
+            fireworkStyle["--match-ten-burst-shadow"] = fw.burstShadow;
             if (fw.origin === "top") {
               fireworkStyle.top = "-28px";
             } else {
@@ -547,6 +623,7 @@ export default function MatchTenCards() {
                 key={fw.id}
                 className="match-ten-firework"
                 data-origin={fw.origin}
+                data-pattern={fw.pattern}
                 style={fireworkStyle}
               />
             );
@@ -580,6 +657,8 @@ export default function MatchTenCards() {
       }
       .match-ten-firework {
         --match-ten-direction: 1;
+        --match-ten-travel: 1;
+        --match-ten-burst-size: 1;
         position: absolute;
         width: 8px;
         height: 24px;
@@ -623,19 +702,15 @@ export default function MatchTenCards() {
         content: "";
         position: absolute;
         left: 50%;
-        width: 10px;
-        height: 10px;
+        width: calc(12px * var(--match-ten-burst-size, 1));
+        height: calc(12px * var(--match-ten-burst-size, 1));
         border-radius: 50%;
-        background: currentColor;
-        box-shadow:
-          0 0 16px currentColor,
-          10px -4px 0 -2px currentColor,
-          -10px -3px 0 -2px currentColor,
-          6px 6px 0 -3px currentColor,
-          -6px 7px 0 -3px currentColor;
+        background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0));
+        box-shadow: var(--match-ten-burst-shadow, 0 0 16px currentColor);
         opacity: 0;
         animation: match-ten-burst ${FIREWORK_DURATION_MS}ms ease-out forwards;
         animation-delay: calc(var(--match-ten-delay, 0ms) + 700ms);
+        filter: drop-shadow(0 0 18px currentColor);
       }
       .match-ten-firework[data-origin="bottom"]::after {
         top: -12px;
@@ -643,10 +718,16 @@ export default function MatchTenCards() {
       .match-ten-firework[data-origin="top"]::after {
         bottom: -12px;
       }
+      .match-ten-firework[data-pattern="ring"]::after {
+        mix-blend-mode: screen;
+      }
+      .match-ten-firework[data-pattern="spray"]::after {
+        filter: drop-shadow(0 0 24px rgba(255,255,255,0.6));
+      }
       @keyframes match-ten-rocket {
         0% { transform: translate(-50%, calc(40px * var(--match-ten-direction))) scale(0.5); opacity: 0; }
         18% { opacity: 1; }
-        55% { transform: translate(-50%, calc(-260px * var(--match-ten-direction))) scale(0.92); opacity: 1; }
+        55% { transform: translate(-50%, calc(-320px * var(--match-ten-direction) * var(--match-ten-travel, 1))) scale(0.92); opacity: 1; }
         70% { opacity: 0.35; }
         100% { opacity: 0; }
       }

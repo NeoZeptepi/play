@@ -4,6 +4,7 @@
 - **Start every session by reading this file** to refresh the required workflow and constraints.
 - Keep responses concise; highlight only deltas and the key files you touched.
 - If asked to deploy, confirm build + deploy steps and always report the Cloudflare preview URL.
+ - When referencing these instructions in replies, stay extra concise—acknowledge only what's new or relevant.
 
 ## Release & Verification Workflow
 1. **Version bump is mandatory.**
