@@ -38,8 +38,8 @@ export default function RootLayout({
               <li><a href="/match-ten-dice">Match Ten Dice</a></li>
               <li><a href="/match-ten-cards">Match Ten Cards</a></li>
               <li><a href="/make-10-dice">Make 10 Dice</a></li>
-              <li><a href="/double-addend">Double Addend</a></li>
-              <li><a href="/double-addend-sum-20">Double Addend &ndash; Sum 20</a></li>
+              <li><a href="/double-addend-sum-20">Double Addends &ndash; Sum 20</a></li>
+              <li><a href="/double-addend">Double Addends</a></li>
             </ul>
           </nav>
           <main className="site-main">{children}</main>
