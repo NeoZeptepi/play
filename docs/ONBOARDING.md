@@ -33,7 +33,13 @@ Make a Change
    git push origin lesson-update
 6. In GitHub (web), open a Pull Request (PR). Click Create PR.
 7. Wait for preview link (Cloudflare). Test it.
-8. Merge PR → site goes live shortly after.
+8. Before merging/publishing, bump the release stamp locally:
+   npm run version:update
+   git add version.json
+   git commit -m "chore: bump version" (or add to your existing commit)
+   Push the updated commit so the PR includes the new version.
+9. Merge PR → site goes live shortly after.
+10. Visit the deployed site (add ?v=1) and confirm the footer serial matches the new `version.json`. If not, rerun `npm run deploy:cf`.
 
 Reusing a Branch
 ----------------

@@ -24,8 +24,12 @@ Option A — Quick Scaffold
    - Put images, SVGs, sounds in public/<slug>/ and reference them with /<slug>/filename.ext
 
 5) Deploy
-   - Commit changes, push, and either let Cloudflare build from Git or run:
-     npm run deploy:cf
+    - Always bump the release stamp before shipping:
+       npm run version:update
+       git add version.json
+    - Commit changes, push, and either let Cloudflare build from Git or run:
+       npm run deploy:cf
+    - After deployment, load the page with ?v=1 and ensure the footer serial matches `version.json`.
 
 Option B — Manual Steps
 -----------------------

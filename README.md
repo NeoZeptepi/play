@@ -24,11 +24,17 @@ Open http://localhost:3000
 
 Static Export & Deploy (Cloudflare Pages)
 ----------------------------------------
+Always bump the release stamp before any deploy:
+```bash
+npm run version:update
+```
+Commit the updated `version.json`, then build/deploy:
 ```bash
 npm run deploy:cf       # builds then deploys the out/ directory with Wrangler
 # optional:
 npm run export:static   # just builds static output (out/) without deploying
 ```
+After deployment, confirm the footer serial on https://play-udy.pages.dev matches the new value in `version.json`. If it doesn't, redeploy.
 Notes:
 - If you don’t see changes live, add ?v=1 to the URL or Purge Everything in Cloudflare Pages cache.
 - Pushing to main triggers Cloudflare’s repo-connected build too (recommended for production).

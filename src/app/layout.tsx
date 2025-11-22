@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import versionInfo from "../../version.json";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,6 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const buildStamp = new Date().toISOString();
+  const releaseVersion = versionInfo.version ?? "dev";
   return (
     <html lang="en" data-build={new Date().toISOString()}>
       <body className={`${geistSans.variable} ${geistMono.variable} site-body`} data-build={buildStamp}>
@@ -41,7 +43,11 @@ export default function RootLayout({
           </nav>
           <main className="site-main">{children}</main>
         </div>
-        <footer className="site-footer">&copy; {new Date().getFullYear()} Garrett.org &mdash; Play for fun! <span className="build-stamp">Build: {buildStamp}</span></footer>
+        <footer className="site-footer">
+          <span className="footer-copy">&copy; {new Date().getFullYear()} Garrett.org &mdash; Play for fun!</span>
+          <span className="build-stamp">Build: {buildStamp}</span>
+          <span className="footer-version" aria-label="Release version">v{releaseVersion}</span>
+        </footer>
         <style>{`
           .site-body { margin:0; padding:0; min-height:100vh; display:flex; flex-direction:column; }
           .site-header { width:100%; background:#222; color:#fff; padding:.75rem 1.25rem; font-size:1.3rem; font-weight:700; letter-spacing:.05em; box-shadow:0 2px 8px rgba(0,0,0,0.04); line-height:1.15; }
@@ -54,9 +60,11 @@ export default function RootLayout({
             .nav-list a { color:#222; text-decoration:none; font-weight:500; font-size:.95rem; }
           .site-main { flex:1; padding:.85rem 1.35rem 3.5rem; min-height:0; background:#fff; overflow:auto; color:#222; }
           .site-main > h1:first-child { margin-top:0; }
-          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.5rem 1.1rem; text-align:center; font-size:.75rem; letter-spacing:.03em; z-index:50; transform:translateY(100%); opacity:0; transition:transform .35s ease, opacity .35s ease; }
-          .build-stamp { margin-left:.75rem; opacity:0; font-weight:400; letter-spacing:0; font-size:.6rem; color:#999; transition:opacity .3s ease; }
+          .site-footer { position:fixed; bottom:0; left:0; right:0; background:#222; color:#fff; padding:.5rem 1.1rem; text-align:center; font-size:.75rem; letter-spacing:.03em; z-index:50; transform:translateY(100%); opacity:0; transition:transform .35s ease, opacity .35s ease; display:flex; align-items:center; gap:.75rem; }
+          .footer-copy { flex:0 0 auto; }
+          .build-stamp { margin-left:.25rem; opacity:0; font-weight:400; letter-spacing:0; font-size:.6rem; color:#999; transition:opacity .3s ease; }
           .site-footer:hover .build-stamp { opacity:.75; }
+          .footer-version { margin-left:auto; font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:rgba(255,255,255,0.6); border-left:1px solid rgba(255,255,255,0.12); padding-left:.75rem; }
           .show-footer .site-footer { transform:translateY(0); opacity:1; }
           /* Provide extra bottom padding so content not obscured when footer slides in */
           .show-footer .site-main { padding-bottom:4.5rem; }

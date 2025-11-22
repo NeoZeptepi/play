@@ -27,6 +27,9 @@ Quick Path (Minimal Steps)
    - Open VS Code (code . from inside the folder, or File > Open...).
    - Change text in src/app/page.tsx — site auto-refreshes.
 7. Deploy (two options):
+   Before either option, bump the release stamp so the footer reflects the new build:
+     npm run version:update
+     git add version.json
    A. Git Push (recommended):
       git checkout -b change-text
       git add .
@@ -78,9 +81,12 @@ GitHub → Cloudflare (Preferred):
  - Cloudflare Pages is already connected to the repository.
  - Each push to main triggers production deploy.
  - Each PR branch gets a Preview URL automatically.
+ - Always run `npm run version:update` and commit `version.json` before pushing final changes so the live footer stamp increments.
+ - After the Pages build finishes, open the deployed URL with ?v=1 and confirm the footer serial matches `version.json`. Redeploy if it doesn’t.
 
 Manual CLI Deploy (Fallback):
  - Runs static build then uploads with Wrangler (deploy script now builds first automatically).
+   - Same rule: run `npm run version:update` beforehand so `version.json` reflects the new build.
  - Command:
     npm run deploy:cf
  - What it does:
@@ -88,7 +94,7 @@ Manual CLI Deploy (Fallback):
     2) wrangler pages deploy out --commit-dirty=true
  - Requires Wrangler auth already set up (once):
     npx wrangler login
- - Tip: If you don’t see changes, append a query param (e.g., ?v=1) or Purge Everything in Cloudflare Pages → Settings → Cache.
+ - Tip: If you don’t see changes, append a query param (e.g., ?v=1) or Purge Everything in Cloudflare Pages → Settings → Cache. Also verify the footer serial updates.
 
 ---
 Security / Account Options
@@ -128,6 +134,7 @@ git commit -m "feat: something"
 git push origin feature
 Open PR → Merge
 
+npm run version:update  # bump YY.MM.DD.xx before publishing
 npm run dev           # local development
 npm run export:static # optional: static build only (writes to out/)
 npm run deploy:cf     # build + deploy to Cloudflare (preferred)

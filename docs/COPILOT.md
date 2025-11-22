@@ -28,24 +28,28 @@ Key Rules
 
 Standard Steps Copilot Should Execute
 ------------------------------------
-1) Stage and commit changes
+1) Update the release version
+   - Run `npm run version:update` before publishing.
+   - Commit the updated `version.json` so Cloudflare builds from the correct version string (format: `YY.MM.DD.XX`).
+2) Stage and commit changes
    - git add <files>
    - git commit -m "<message>"
    - git push origin main (or branch)
 
-2) Build + Deploy to Cloudflare Pages
+3) Build + Deploy to Cloudflare Pages
    - npm run deploy:cf
 
-3) Report back a preview URL
+4) Report back a preview URL
    - Wrangler prints a pages.dev URL; share it.
 
-4) Validate live content
+5) Validate live content
    - Open preview with ?v=1 and confirm:
      - Header/footer/layout tweaks visible
      - Home page heading without period
      - Footer build stamp appears after scroll to bottom (footer slides in) and on hover
+     - Serial shown in footer matches the freshly updated `version.json`
 
-5) If live site doesn’t update
+6) If live site doesn’t update
    - Confirm out/index.html contains the expected changes
    - Re-run npm run deploy:cf
    - Use Cloudflare → Pages → Purge Cache, then reload with ?v=1
