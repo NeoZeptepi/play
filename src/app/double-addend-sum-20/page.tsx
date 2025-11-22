@@ -224,7 +224,6 @@ export default function DoubleAddendSum20() {
           aria-label={`Target value ${target}`}
         >
           {target}
-          <span style={{ fontSize: 14, fontWeight: 500, marginTop: 4 }}>Max Sum {MAX_SUM}</span>
         </div>
 
         {balloons.map((balloon) => {
