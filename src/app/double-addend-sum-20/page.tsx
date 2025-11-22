@@ -107,7 +107,8 @@ export default function DoubleAddendSum20() {
   const correctAddend = target / 2;
   const [balloons, setBalloons] = useState(() => makeBalloons(target));
   const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
-  const [message, setMessage] = useState("Find the addend to double without exceeding 20.");
+  const baseMessage = "Find the number that when doubled equals the sum.";
+  const [message, setMessage] = useState(baseMessage);
   const [popped, setPopped] = useState<{ target: boolean; addendIds: Set<number> }>({ target: false, addendIds: new Set() });
   const wrongTimeoutRef = useRef<number | null>(null);
   const advanceTimeoutRef = useRef<number | null>(null);
@@ -129,7 +130,7 @@ export default function DoubleAddendSum20() {
       return next;
     });
     setStatus("idle");
-    setMessage("Find the addend to double without exceeding 20.");
+  setMessage(baseMessage);
     setPopped({ target: false, addendIds: new Set() });
   }, []);
 
@@ -153,7 +154,7 @@ export default function DoubleAddendSum20() {
       if (wrongTimeoutRef.current) window.clearTimeout(wrongTimeoutRef.current);
       wrongTimeoutRef.current = window.setTimeout(() => {
         setStatus("idle");
-        setMessage("Find the addend to double without exceeding 20.");
+  setMessage(baseMessage);
       }, 1800);
     }
   };
@@ -186,7 +187,6 @@ export default function DoubleAddendSum20() {
         <button onClick={reset} style={{ padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>
           New Target
         </button>
-        <span style={{ fontSize: 14, color: "#555" }}>Every sum stays at or below 20.</span>
       </div>
 
       <div

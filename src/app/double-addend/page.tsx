@@ -103,7 +103,8 @@ export default function DoubleAddend() {
   const correctAddend = target / 2;
   const [balloons, setBalloons] = useState(() => makeBalloons(target));
   const [status, setStatus] = useState<'idle'|'correct'|'wrong'>('idle');
-  const [message, setMessage] = useState('Find the addend that when doubled equals the target.');
+  const baseMessage = 'Find the number that when doubled equals the sum.';
+  const [message, setMessage] = useState(baseMessage);
   const [popped, setPopped] = useState<{ target: boolean; addendIds: Set<number> }>({ target: false, addendIds: new Set() });
   const wrongTimeoutRef = useRef<number | null>(null);
   const advanceTimeoutRef = useRef<number | null>(null);
@@ -125,7 +126,7 @@ export default function DoubleAddend() {
       return next;
     });
     setStatus('idle');
-    setMessage('Find the addend that when doubled equals the target.');
+  setMessage(baseMessage);
     setPopped({ target: false, addendIds: new Set() });
     // balloons will be regenerated in effect when target updates
   }, []);
@@ -156,7 +157,7 @@ export default function DoubleAddend() {
       if (wrongTimeoutRef.current) window.clearTimeout(wrongTimeoutRef.current);
       wrongTimeoutRef.current = window.setTimeout(() => {
         setStatus('idle');
-        setMessage('Find the addend that when doubled equals the target.');
+    setMessage(baseMessage);
       }, 1800);
     }
   }
